@@ -74,8 +74,8 @@ class Get12306:
                        "8": "256,106,",
                        }
 
-        # answer_num = input("请输入正确答案序号(自动输入zd):")
-        answer_num = 'zd'
+        answer_num = input("请输入正确答案序号(自动输入zd):")
+        # answer_num = 'zd'
         if answer_num == 'zd':
             try:
                 answer_num = get_yzm('yz_img.png')
@@ -130,19 +130,21 @@ class Get12306:
         """获取列车信息"""
         # 更改referer,进入列车查询界面
         url = 'https://kyfw.12306.cn/otn/leftTicket/init'
-        self.s.get(url)
+        resp = self.s.get(url)
+        # 解决queryX变化的问题
+        query_key = re.search(r"var CLeftTicketUrl = '(.+?)';",resp.content.decode()).group(1)
         self.s.headers['Referer'] = url
 
         # 要查询列车的信息
-        self.train_date = input('请输入出行的日期（格式为“2019-03-01”）：')
-        self.from_station = input('请输入出发的城市或车站：')
-        self.to_station = input('请输入到达的城市或车站：')
+        # self.train_date = input('请输入出行的日期（格式为“2019-02-01”）：')
+        # self.from_station = input('请输入出发的城市或车站：')
+        # self.to_station = input('请输入到达的城市或车站：')
         from_station_code = telcode_dict[self.from_station]
         to_station_code = telcode_dict[self.to_station]
 
         # 获取查询列车的信息
-        url = "https://kyfw.12306.cn/otn/leftTicket/queryX?leftTicketDTO.train_date={}&leftTicketDTO.from_station={}&leftTicketDTO.to_station={}&purpose_codes=ADULT".format(
-            self.train_date,from_station_code,to_station_code)
+        url = "https://kyfw.12306.cn/otn/{}?leftTicketDTO.train_date={}&leftTicketDTO.from_station={}&leftTicketDTO.to_station={}&purpose_codes=ADULT".format(
+            query_key,self.train_date,from_station_code,to_station_code)
         resp = self.s.get(url)
         trains_info = json.loads(resp.content)['data']['result']
         # 解析并构造车次信息列表
@@ -281,7 +283,7 @@ class Get12306:
 
         # 排队等待获取订单号，根据获取的waitTime秒数之后再次重新发送本请求
         def func():
-            url = 'https://kyfw.12306.cn/otn/confirmPassenger/queryOrderWaitTime?random={}&tourFlag=dc&_json_att=&REPEAT_SUBMIT_TOKEN={}'.format(
+            url = 'https://kyfw.12306.cn/ot,n/confirmPassenger/queryOrderWaitTime?random={}&tourFlag=dc&_json_att=&REPEAT_SUBMIT_TOKEN={}'.format(
                 int(time.time() * 1000),self.REPEAT_SUBMIT_TOKEN)
             resp = self.s.get(url)
             waitTime = json.loads(resp.content)['data']['waitTime']
@@ -320,7 +322,7 @@ class Get12306:
 
 if __name__ == '__main__':
 
-    p1 = Get12306(17714552601,"caowo1996","2019-03-20","南京","常州")
+    p1 = Get12306(17714552601,"****","2019-04-01","南京","常州")
     p1.run()
 
 

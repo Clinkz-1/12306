@@ -60,7 +60,7 @@ def print_style(value,length,type):
 
 def showTrainsInfo(trains_list):
     telcode_dict_re = {val:key for key,val in telcode_dict.items()}
-    length = 113
+    length = 116
     print('*' * length)
     print('   |车次 | 出发站 | 到达站 |出发时间|到达时间|历时 |特等座|一等座|二等座|高级软卧|一等软卧|动卧|硬卧|软座|硬座|无座|其他')
     print('=' * length)
